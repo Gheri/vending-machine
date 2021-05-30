@@ -1,10 +1,20 @@
 import express from "express";
 import bodyParser from 'body-parser';
 import helmet from "helmet";
+import mongoose from 'mongoose';
+import productRoutes from "./routes/productRoutes.js"
+import orderRoutes from "./routes/ordersRoutes.js"
+import config from "config";
+
+// mongoose connection
+mongoose.Promise = global.Promise;
+mongoose.connect(config.get("mongoConnectionString"), {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 
 const app = express();
 const v1 = express.Router();
-app.use("/v1", v1);
 
 // bodyparser setup
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,7 +36,9 @@ process.on("uncaughtException", error => {
 process.on("unhandledRejection", error => {
     console.log(error);
 });
-
+app.use("/v1", v1);
+productRoutes(v1);
+orderRoutes(v1);
 const PORT = 4000;
 
 app.get('/', (req, res) => {
